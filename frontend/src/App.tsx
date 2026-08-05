@@ -1,122 +1,102 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
+import { useEffect, useState } from 'react';
+import { ShieldAlert, BarChart3, Map, Settings, Search } from 'lucide-react';
+import HazardMap from './components/HazardMap';
+import ReportForm from './components/ReportForm';
+import { fetchReports } from './api';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [reports, setReports] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const loadReports = async () => {
+    setIsLoading(true);
+    const data = await fetchReports();
+    setReports(data);
+    setIsLoading(false);
+  };
+
+  useEffect(() => {
+    loadReports();
+  }, []);
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
+    <div className="app-container">
+      {/* Sidebar Navigation */}
+      <aside className="sidebar">
+        <div className="brand">
+          <ShieldAlert size={28} />
+          OceanGuard
         </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+        
+        <nav className="nav-links">
+          <a className="nav-link active">
+            <Map size={20} />
+            Live Map
+          </a>
+          <a className="nav-link">
+            <BarChart3 size={20} />
+            Social Analytics
+          </a>
+          <a className="nav-link">
+            <Search size={20} />
+            Historical Data
+          </a>
+          <a className="nav-link">
+            <Settings size={20} />
+            Settings
+          </a>
+        </nav>
+      </aside>
 
-      <div className="ticks"></div>
+      {/* Main Content Area */}
+      <main className="main-content">
+        <header>
+          <h1>Ocean Hazard Dashboard</h1>
+          <p>Real-time crowdsourced reporting and social media insights.</p>
+        </header>
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
+        {/* Top Stats */}
+        <div className="dashboard-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
+          <div className="glass-panel">
+            <h3>Active Hazards</h3>
+            <div className="stat-value">{reports.length}</div>
+            <p>Reported in the last 24h</p>
+          </div>
+          <div className="glass-panel">
+            <h3>Social Mentions</h3>
+            <div className="stat-value">1,204</div>
+            <p>Across Twitter & Reddit</p>
+          </div>
+          <div className="glass-panel">
+            <h3>High Severity</h3>
+            <div className="stat-value" style={{ color: 'var(--danger-color)' }}>
+              {reports.filter(r => r.severity === 'High').length}
+            </div>
+            <p>Immediate action required</p>
+          </div>
         </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+        {/* Main interactive area */}
+        <div className="dashboard-grid">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            <div className="glass-panel" style={{ flex: 1 }}>
+              <h2>Global Map</h2>
+              <p style={{ marginBottom: '16px' }}>Interactive view of all reported incidents.</p>
+              {isLoading ? (
+                <div>Loading map data...</div>
+              ) : (
+                <HazardMap reports={reports} />
+              )}
+            </div>
+          </div>
+          
+          <div>
+            <ReportForm onReportAdded={loadReports} />
+          </div>
+        </div>
+      </main>
+    </div>
+  );
 }
 
-export default App
+export default App;
