@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { ShieldAlert, BarChart3, Map, Settings, Search } from 'lucide-react';
 import HazardMap from './components/HazardMap';
 import ReportForm from './components/ReportForm';
+import AnalyticsCharts from './components/AnalyticsCharts';
+import SocialFeed from './components/SocialFeed';
 import { fetchReports } from './api';
 
 function App() {
@@ -35,7 +37,7 @@ function App() {
           </a>
           <a className="nav-link">
             <BarChart3 size={20} />
-            Social Analytics
+            Analytics
           </a>
           <a className="nav-link">
             <Search size={20} />
@@ -76,7 +78,19 @@ function App() {
           </div>
         </div>
 
-        {/* Main interactive area */}
+        {/* Analytics & Social Feed */}
+        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
+          <div>
+            <h2 style={{ marginBottom: '16px' }}>Data Analytics</h2>
+            {isLoading ? <div>Loading analytics...</div> : <AnalyticsCharts reports={reports} />}
+          </div>
+          <div>
+            <h2 style={{ marginBottom: '16px' }}>Social Media Pulse</h2>
+            <SocialFeed />
+          </div>
+        </div>
+
+        {/* Main interactive area (Map & Form) */}
         <div className="dashboard-grid">
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             <div className="glass-panel" style={{ flex: 1 }}>
