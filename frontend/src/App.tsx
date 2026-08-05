@@ -9,6 +9,7 @@ import { fetchReports } from './api';
 function App() {
   const [reports, setReports] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('dashboard');
 
   const loadReports = async () => {
     setIsLoading(true);
@@ -31,19 +32,31 @@ function App() {
         </div>
         
         <nav className="nav-links">
-          <a className="nav-link active">
-            <Map size={20} />
-            Live Map
-          </a>
-          <a className="nav-link">
+          <a 
+            className={`nav-link ${activeTab === 'dashboard' ? 'active' : ''}`}
+            onClick={() => setActiveTab('dashboard')}
+          >
             <BarChart3 size={20} />
-            Analytics
+            Dashboard
           </a>
-          <a className="nav-link">
+          <a 
+            className={`nav-link ${activeTab === 'map' ? 'active' : ''}`}
+            onClick={() => setActiveTab('map')}
+          >
+            <Map size={20} />
+            Live Map & Reporting
+          </a>
+          <a 
+            className={`nav-link ${activeTab === 'historical' ? 'active' : ''}`}
+            onClick={() => setActiveTab('historical')}
+          >
             <Search size={20} />
             Historical Data
           </a>
-          <a className="nav-link">
+          <a 
+            className={`nav-link ${activeTab === 'settings' ? 'active' : ''}`}
+            onClick={() => setActiveTab('settings')}
+          >
             <Settings size={20} />
             Settings
           </a>
@@ -53,11 +66,11 @@ function App() {
       {/* Main Content Area */}
       <main className="main-content">
         <header>
-          <h1>Ocean Hazard Dashboard</h1>
+          <h1>Ocean Hazard Platform</h1>
           <p>Real-time crowdsourced reporting and social media insights.</p>
         </header>
 
-        {/* Top Stats */}
+        {/* Top Stats - Always visible */}
         <div className="dashboard-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
           <div className="glass-panel">
             <h3>Active Hazards</h3>
@@ -78,36 +91,54 @@ function App() {
           </div>
         </div>
 
-        {/* Analytics & Social Feed */}
-        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
-          <div>
-            <h2 style={{ marginBottom: '16px' }}>Data Analytics</h2>
-            {isLoading ? <div>Loading analytics...</div> : <AnalyticsCharts reports={reports} />}
-          </div>
-          <div>
-            <h2 style={{ marginBottom: '16px' }}>Social Media Pulse</h2>
-            <SocialFeed />
-          </div>
-        </div>
-
-        {/* Main interactive area (Map & Form) */}
-        <div className="dashboard-grid">
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            <div className="glass-panel" style={{ flex: 1 }}>
-              <h2>Global Map</h2>
-              <p style={{ marginBottom: '16px' }}>Interactive view of all reported incidents.</p>
-              {isLoading ? (
-                <div>Loading map data...</div>
-              ) : (
-                <HazardMap reports={reports} />
-              )}
+        {/* Dynamic Views based on activeTab */}
+        {activeTab === 'dashboard' && (
+          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
+            <div>
+              <h2 style={{ marginBottom: '16px' }}>Data Analytics</h2>
+              {isLoading ? <div>Loading analytics...</div> : <AnalyticsCharts reports={reports} />}
+            </div>
+            <div>
+              <h2 style={{ marginBottom: '16px' }}>Social Media Pulse</h2>
+              <SocialFeed />
             </div>
           </div>
-          
-          <div>
-            <ReportForm onReportAdded={loadReports} />
+        )}
+
+        {activeTab === 'map' && (
+          <div className="dashboard-grid">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              <div className="glass-panel" style={{ flex: 1 }}>
+                <h2>Global Hazard Map</h2>
+                <p style={{ marginBottom: '16px' }}>Interactive view of all reported incidents.</p>
+                {isLoading ? (
+                  <div>Loading map data...</div>
+                ) : (
+                  <HazardMap reports={reports} />
+                )}
+              </div>
+            </div>
+            
+            <div>
+              <ReportForm onReportAdded={loadReports} />
+            </div>
           </div>
-        </div>
+        )}
+
+        {activeTab === 'historical' && (
+          <div className="glass-panel">
+            <h2>Historical Data</h2>
+            <p>This feature is currently under development. Please check back later to view historical archives and trends.</p>
+          </div>
+        )}
+
+        {activeTab === 'settings' && (
+          <div className="glass-panel">
+            <h2>Platform Settings</h2>
+            <p>This feature is currently under development. Preferences will be available soon.</p>
+          </div>
+        )}
+
       </main>
     </div>
   );
