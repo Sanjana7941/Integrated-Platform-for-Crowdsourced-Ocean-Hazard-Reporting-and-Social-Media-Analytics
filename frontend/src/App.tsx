@@ -1,16 +1,22 @@
 import { useEffect, useState } from 'react';
-import { ShieldAlert, BarChart3, Map, Settings, Search } from 'lucide-react';
+import { ShieldAlert, BarChart3, Map, Settings as SettingsIcon, Search } from 'lucide-react';
 import HazardMap from './components/HazardMap';
 import ReportForm from './components/ReportForm';
 import AnalyticsCharts from './components/AnalyticsCharts';
 import SocialFeed from './components/SocialFeed';
+import Settings from './components/Settings';
 import { fetchReports } from './api';
 
 function App() {
   const [reports, setReports] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('dashboard');
+  
+  // Personalization State (loaded from localStorage if available)
+  const [accentColor, setAccentColor] = useState(() => localStorage.getItem('oceanGuardAccentColor') || '#38bdf8');
+  const [compactMode, setCompactMode] = useState(() => localStorage.getItem('oceanGuardCompactMode') === 'true');
 
+  // Fetch reports on mount
   const loadReports = async () => {
     setIsLoading(true);
     const data = await fetchReports();
@@ -22,12 +28,25 @@ function App() {
     loadReports();
   }, []);
 
+  // Apply CSS variables and classes whenever settings change
+  useEffect(() => {
+    document.documentElement.style.setProperty('--accent-color', accentColor);
+    localStorage.setItem('oceanGuardAccentColor', accentColor);
+    
+    if (compactMode) {
+      document.body.classList.add('compact-mode');
+    } else {
+      document.body.classList.remove('compact-mode');
+    }
+    localStorage.setItem('oceanGuardCompactMode', compactMode.toString());
+  }, [accentColor, compactMode]);
+
   return (
     <div className="app-container">
       {/* Sidebar Navigation */}
       <aside className="sidebar">
         <div className="brand">
-          <ShieldAlert size={28} />
+          <ShieldAlert size={28} style={{ color: 'var(--accent-color)' }} />
           OceanGuard
         </div>
         
@@ -57,7 +76,7 @@ function App() {
             className={`nav-link ${activeTab === 'settings' ? 'active' : ''}`}
             onClick={() => setActiveTab('settings')}
           >
-            <Settings size={20} />
+            <SettingsIcon size={20} />
             Settings
           </a>
         </nav>
@@ -70,26 +89,28 @@ function App() {
           <p>Real-time crowdsourced reporting and social media insights.</p>
         </header>
 
-        {/* Top Stats - Always visible */}
-        <div className="dashboard-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
-          <div className="glass-panel">
-            <h3>Active Hazards</h3>
-            <div className="stat-value">{reports.length}</div>
-            <p>Reported in the last 24h</p>
-          </div>
-          <div className="glass-panel">
-            <h3>Social Mentions</h3>
-            <div className="stat-value">1,204</div>
-            <p>Across Twitter & Reddit</p>
-          </div>
-          <div className="glass-panel">
-            <h3>High Severity</h3>
-            <div className="stat-value" style={{ color: 'var(--danger-color)' }}>
-              {reports.filter(r => r.severity === 'High').length}
+        {/* Top Stats - Always visible unless in settings */}
+        {activeTab !== 'settings' && (
+          <div className="dashboard-grid" style={{ gridTemplateColumns: 'repeat(3, 1fr)' }}>
+            <div className="glass-panel">
+              <h3>Active Hazards</h3>
+              <div className="stat-value" style={{ color: 'var(--accent-color)' }}>{reports.length}</div>
+              <p>Reported in the last 24h</p>
             </div>
-            <p>Immediate action required</p>
+            <div className="glass-panel">
+              <h3>Social Mentions</h3>
+              <div className="stat-value" style={{ color: 'var(--accent-color)' }}>1,204</div>
+              <p>Across Twitter & Reddit</p>
+            </div>
+            <div className="glass-panel">
+              <h3>High Severity</h3>
+              <div className="stat-value" style={{ color: 'var(--danger-color)' }}>
+                {reports.filter(r => r.severity === 'High').length}
+              </div>
+              <p>Immediate action required</p>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Dynamic Views based on activeTab */}
         {activeTab === 'dashboard' && (
@@ -133,9 +154,13 @@ function App() {
         )}
 
         {activeTab === 'settings' && (
-          <div className="glass-panel">
-            <h2>Platform Settings</h2>
-            <p>This feature is currently under development. Preferences will be available soon.</p>
+          <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <Settings 
+              accentColor={accentColor} 
+              setAccentColor={setAccentColor} 
+              compactMode={compactMode} 
+              setCompactMode={setCompactMode} 
+            />
           </div>
         )}
 
