@@ -5,6 +5,10 @@ interface SettingsProps {
   setAccentColor: (color: string) => void;
   compactMode: boolean;
   setCompactMode: (isCompact: boolean) => void;
+  themeMode: string;
+  setThemeMode: (mode: string) => void;
+  userName: string;
+  setUserName: (name: string) => void;
 }
 
 const COLORS = [
@@ -15,12 +19,30 @@ const COLORS = [
   { name: 'Rose Red', value: '#f43f5e' }
 ];
 
-const Settings: React.FC<SettingsProps> = ({ accentColor, setAccentColor, compactMode, setCompactMode }) => {
+const Settings: React.FC<SettingsProps> = ({ 
+  accentColor, setAccentColor, 
+  compactMode, setCompactMode,
+  themeMode, setThemeMode,
+  userName, setUserName
+}) => {
   return (
-    <div className="glass-panel" style={{ maxWidth: '600px', width: '100%' }}>
+    <div className="glass-panel animate-fade-in" style={{ maxWidth: '600px', width: '100%' }}>
       <h2 style={{ marginBottom: '24px', borderBottom: '1px solid var(--glass-border)', paddingBottom: '12px' }}>
         Personalization Settings
       </h2>
+
+      <div style={{ marginBottom: '32px' }}>
+        <h3 style={{ marginBottom: '16px' }}>Display Name</h3>
+        <p style={{ marginBottom: '16px', fontSize: '0.9rem' }}>Customize how the dashboard greets you.</p>
+        <input 
+          type="text" 
+          value={userName}
+          onChange={(e) => setUserName(e.target.value)}
+          placeholder="e.g. Sanjana"
+          className="form-control"
+          style={{ maxWidth: '300px' }}
+        />
+      </div>
       
       <div style={{ marginBottom: '32px' }}>
         <h3 style={{ marginBottom: '16px' }}>Theme Accent Color</h3>
@@ -35,7 +57,7 @@ const Settings: React.FC<SettingsProps> = ({ accentColor, setAccentColor, compac
                 height: '40px',
                 borderRadius: '50%',
                 backgroundColor: color.value,
-                border: accentColor === color.value ? '3px solid white' : 'none',
+                border: accentColor === color.value ? '3px solid var(--text-main)' : 'none',
                 cursor: 'pointer',
                 boxShadow: accentColor === color.value ? `0 0 10px ${color.value}` : 'none',
                 transition: 'all 0.2s ease'
@@ -47,22 +69,41 @@ const Settings: React.FC<SettingsProps> = ({ accentColor, setAccentColor, compac
       </div>
 
       <div>
-        <h3 style={{ marginBottom: '16px' }}>Layout Preferences</h3>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', background: 'rgba(0,0,0,0.2)', borderRadius: '8px' }}>
-          <div>
-            <strong style={{ display: 'block', marginBottom: '4px' }}>Compact Mode</strong>
-            <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Reduces padding and font sizes to fit more data on screen.</span>
+        <h3 style={{ marginBottom: '16px' }}>Layout & Theme Preferences</h3>
+        
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', background: 'rgba(0,0,0,0.1)', borderRadius: '8px', border: '1px solid var(--glass-border)' }}>
+            <div>
+              <strong style={{ display: 'block', marginBottom: '4px' }}>Color Theme</strong>
+              <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Switch between Dark and Light mode.</span>
+            </div>
+            <select 
+              value={themeMode} 
+              onChange={(e) => setThemeMode(e.target.value)}
+              className="form-control"
+              style={{ width: 'auto', padding: '8px' }}
+            >
+              <option value="dark">Deep Ocean (Dark)</option>
+              <option value="light">Pearl (Light)</option>
+            </select>
           </div>
-          
-          <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-            <input 
-              type="checkbox" 
-              checked={compactMode} 
-              onChange={(e) => setCompactMode(e.target.checked)} 
-              style={{ width: '20px', height: '20px', accentColor: 'var(--accent-color)', cursor: 'pointer' }}
-            />
-            <span style={{ marginLeft: '8px', fontWeight: 'bold' }}>{compactMode ? 'Enabled' : 'Disabled'}</span>
-          </label>
+
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px', background: 'rgba(0,0,0,0.1)', borderRadius: '8px', border: '1px solid var(--glass-border)' }}>
+            <div>
+              <strong style={{ display: 'block', marginBottom: '4px' }}>Compact Mode</strong>
+              <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Reduces padding and font sizes to fit more data on screen.</span>
+            </div>
+            
+            <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+              <input 
+                type="checkbox" 
+                checked={compactMode} 
+                onChange={(e) => setCompactMode(e.target.checked)} 
+                style={{ width: '20px', height: '20px', accentColor: 'var(--accent-color)', cursor: 'pointer' }}
+              />
+              <span style={{ marginLeft: '8px', fontWeight: 'bold' }}>{compactMode ? 'Enabled' : 'Disabled'}</span>
+            </label>
+          </div>
         </div>
       </div>
     </div>
